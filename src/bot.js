@@ -1407,7 +1407,6 @@ function watchPricingStream() {
               convertedLiquidationParams,
               true,
               {
-                maxGainP: CHAIN_ID === 33139 ? 100000 : 900,
                 fee: convertedFee,
                 currentBlock: app.blocks.latestL2Block,
                 openInterest: borrowingFeesContext.pairs[convertedTrade.pairIndex].oi,

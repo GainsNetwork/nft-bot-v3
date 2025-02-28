@@ -12,7 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@gainsnetwork/sdk": "^0.2.56-rc3",
+    "@gainsnetwork/sdk": "^0.2.58-rc1",
     "dotenv": "^16.0.1",
     "ethcall": "^4.8.13",
     "ethers": "^5.7.2",
