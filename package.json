@@ -12,7 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@gainsnetwork/sdk": "^0.2.58-rc1",
+    "@gainsnetwork/sdk": "^0.2.59-rc1",
     "dotenv": "^16.0.1",
     "ethcall": "^4.8.13",
     "ethers": "^5.7.2",
@@ -20,6 +20,7 @@
     "node-fetch": "^3.2.10",
     "web3": "^1.7.5",
     "winston": "^3.8.1",
+    "winston-cloudwatch": "^6.3.0",
     "ws": "^8.8.1"
   },
   "devDependencies": {

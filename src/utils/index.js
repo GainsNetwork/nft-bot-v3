@@ -206,6 +206,7 @@ export const appConfig = () => {
     DRY_RUN_MODE: process.env.DRY_RUN_MODE === 'true',
     FETCH_TRADING_VARIABLES_REFRESH_INTERVAL_MS: parseFloat(process.env.FETCH_TRADING_VARIABLES_REFRESH_INTERVAL_SEC || '61') * 1000,
     MAX_LIQ_SPREAD_P: 5 * 1e10 + '',
+    WEB3_PROVIDER_PROMOTION_TIMEOUT: parseFloat(process.env.WEB3_PROVIDER_PROMOTION_TIMEOUT_SEC || '60') * 1000,
   };
 
   const NETWORK = NETWORKS[conf.CHAIN_ID];

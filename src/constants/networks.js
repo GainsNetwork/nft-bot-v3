@@ -17,6 +17,7 @@ export const COLLATERAL = {
   WETH: 'WETH',
   USDC: 'USDC',
   APE: 'APE',
+  GNS: 'GNS',
 };
 
 export const COLLATERAL_CONFIG = {
@@ -36,6 +37,11 @@ export const COLLATERAL_CONFIG = {
     precisionDelta: 1e12,
   },
   [COLLATERAL.APE]: {
+    decimals: 18,
+    precision: 1e18,
+    precisionDelta: 1,
+  },
+  [COLLATERAL.GNS]: {
     decimals: 18,
     precision: 1e18,
     precisionDelta: 1,
@@ -83,6 +89,10 @@ export const NETWORKS = {
         symbol: COLLATERAL.USDC,
         collateralIndex: 3,
       },
+      {
+        symbol: COLLATERAL.GNS,
+        collateralIndex: 4,
+      },
     ],
   },
   [CHAIN_IDS.SEPOLIA]: {
@@ -103,6 +113,10 @@ export const NETWORKS = {
       {
         symbol: COLLATERAL.USDC,
         collateralIndex: 3,
+      },
+      {
+        symbol: COLLATERAL.GNS,
+        collateralIndex: 4,
       },
     ],
   },

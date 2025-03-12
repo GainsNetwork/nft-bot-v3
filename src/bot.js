@@ -86,7 +86,7 @@ if (process.env.NODE_ENV) {
   });
 }
 
-const appLogger = createLogger('BOT', process.env.LOG_LEVEL);
+const appLogger = createLogger('BOT', process.env.LOG_LEVEL, process.env.LOG_LEVEL);
 let executionStats = {
   startTime: new Date(),
   feedLatency: {
@@ -124,6 +124,7 @@ const {
   DRY_RUN_MODE,
   FETCH_TRADING_VARIABLES_REFRESH_INTERVAL_MS,
   COLLATERAL_PRICE_REFRESH_INTERVAL_MS,
+  WEB3_PROVIDER_PROMOTION_TIMEOUT,
 } = appConfig();
 
 // Stringify, stops logger from pretty printing and consuming too many lines
@@ -152,6 +153,7 @@ const app = {
   // web3
   currentlySelectedWeb3ClientIndex: -1,
   currentlySelectedWeb3Client: null,
+  lastWeb3ClientPromotion: 0,
   web3Clients: [],
   // contracts
   collaterals: {},
@@ -255,6 +257,7 @@ async function setCurrentWeb3Client(newWeb3ClientIndex) {
   // update selected index here to prevent race conditions on arbitrum
   const wasFirstClientSelection = app.currentlySelectedWeb3Client === null;
   app.currentlySelectedWeb3ClientIndex = newWeb3ClientIndex;
+  app.lastWeb3ClientPromotion = Date.now();
 
   // setup contracts + collateral configs
   await initContracts(newWeb3Client, app, NETWORK);
@@ -350,7 +353,7 @@ function createWeb3Client(providerIndex, providerUrl) {
 
     // Check if this block is more recent than the currently selected provider's block by the max drift
     // and, if so, switch now
-    if (blockDiff > MAX_PROVIDER_BLOCK_DRIFT) {
+    if (blockDiff > MAX_PROVIDER_BLOCK_DRIFT && app.lastWeb3ClientPromotion + WEB3_PROVIDER_PROMOTION_TIMEOUT < Date.now()) {
       appLogger.info(
         `Switching to provider ${providerUrl} #${providerIndex} because it is ${blockDiff} block(s) ahead of current provider (${newBlockNumber} vs ${
           app.blocks.web3ClientBlocks[app.currentlySelectedWeb3ClientIndex]
@@ -367,7 +370,7 @@ function createWeb3Client(providerIndex, providerUrl) {
 const nonceManager = new NonceManager(
   process.env.PUBLIC_KEY,
   () => app.currentlySelectedWeb3Client,
-  createLogger('NONCE_MANAGER', process.env.LOG_LEVEL)
+  createLogger('NONCE_MANAGER', process.env.LOG_LEVEL, 'warn')
 );
 
 for (let web3ProviderUrlIndex = 0; web3ProviderUrlIndex < WEB3_PROVIDER_URLS.length; web3ProviderUrlIndex++) {
@@ -375,7 +378,7 @@ for (let web3ProviderUrlIndex = 0; web3ProviderUrlIndex < WEB3_PROVIDER_URLS.len
 }
 
 let MAX_PROVIDER_BLOCK_DRIFT =
-  (process.env.MAX_PROVIDER_BLOCK_DRIFT ?? '').length > 0 ? parseInt(process.env.MAX_PROVIDER_BLOCK_DRIFT, 10) : 2;
+  (process.env.MAX_PROVIDER_BLOCK_DRIFT ?? '').length > 0 ? parseInt(process.env.MAX_PROVIDER_BLOCK_DRIFT, 10) : 5;
 
 if (MAX_PROVIDER_BLOCK_DRIFT < 1) {
   appLogger.warn(`MAX_PROVIDER_BLOCK_DRIFT is set to ${MAX_PROVIDER_BLOCK_DRIFT}; setting to minimum of 1.`);
@@ -398,6 +401,8 @@ setInterval(() => {
     uptime: DateTime.now()
       .diff(DateTime.fromJSDate(executionStats.startTime), ['days', 'hours', 'minutes', 'seconds'])
       .toFormat("d'd'h'h'm'm's's'"),
+    blockDiff: [...app.blocks.web3ClientBlocks],
+    lastWeb3ClientPromotion: app.lastWeb3ClientPromotion,
   };
 
   appLogger.info(`Execution Stats:`, executionStats);
